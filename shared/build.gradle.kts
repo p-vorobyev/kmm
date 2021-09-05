@@ -64,11 +64,21 @@ kotlin {
     }
 }
 
+dependencies {
+    testImplementation("io.mockk:mockk:1.12.0")
+}
+
 android {
     compileSdkVersion(31)
     sourceSets["main"].manifest.srcFile("src/androidMain/AndroidManifest.xml")
     defaultConfig {
         minSdkVersion(26)
         targetSdkVersion(31)
+    }
+}
+
+sqldelight {
+    database("AppDatabase") {
+        packageName = "voroby.app.cache"
     }
 }
