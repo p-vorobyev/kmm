@@ -47,4 +47,37 @@ internal class Database(databaseDriverFactory: DatabaseDriverFactory) {
             links = Links(missionPatchUrl = missionPatchUrl, articleUrl = articleUrl)
         )
     }
+
+    internal fun createLaunches(launches: List<RocketLaunch>) {
+        dbQueries.transaction {
+            launches.forEach { launch ->
+                val rocket: vorobyappcache.Rocket? =
+                    dbQueries.selectRocketById(launch.rocket.id).executeAsOneOrNull()
+                if (rocket == null) {
+                    insertRocket(launch)
+                }
+                insertLaunch(launch)
+            }
+        }
+    }
+
+    private fun insertRocket(launch: RocketLaunch) {
+        val rocket = launch.rocket
+        dbQueries.insertRocket(rocket.id, rocket.name, rocket.type)
+    }
+
+    private fun insertLaunch(launch: RocketLaunch) {
+        val links: Links = launch.links
+        dbQueries.insertLaunch(
+            flightNumber = launch.flightNumber.toLong(),
+            missionName = launch.missionName,
+            launchYear = launch.launchYear,
+            rocketId = launch.rocket.id,
+            details = launch.details,
+            launchSuccess = launch.launchSuccess ?: false,
+            launchDateUTC = launch.launchDateUTC,
+            missionPatchUrl = links.missionPatchUrl,
+            articleUrl = links.articleUrl
+        )
+    }
 }
